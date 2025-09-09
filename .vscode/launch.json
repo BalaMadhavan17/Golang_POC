@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Go API",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/main.go",
+      "env": {
+        "DB_USER": "balasubramanian_m",
+        "DB_PASS": "4Vv03HRg818f",
+        "DB_HOST": "pocportal-dev.cvmt59aicyza.us-east-1.rds.amazonaws.com:3306",
+        "DB_NAME": "pocportal"
+      }
+    }
+  ]
+}
