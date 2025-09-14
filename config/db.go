@@ -1,3 +1,4 @@
+```go
 package config
 
 import (
@@ -31,5 +32,21 @@ func ConnectDB() {
 		log.Fatal("❌ DB not reachable: ", err)
 	}
 
+	// Create the mdsListing table if it doesn't exist
+	_, err = DB.Exec(`CREATE TABLE IF NOT EXISTS mdsListing (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		name VARCHAR(255) NOT NULL,
+		comments TEXT,
+		effectiveFrom DATE NOT NULL,
+		effectiveTo DATE NOT NULL,
+		isPPAgreed BOOLEAN DEFAULT FALSE,
+		documentPath VARCHAR(255)
+	);`)
+
+	if err != nil {
+		log.Fatal("❌ Failed to create mdsListing table: ", err)
+	}
+
 	log.Println("✅ Connected to MySQL Database")
 }
+```
