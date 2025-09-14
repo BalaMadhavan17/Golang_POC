@@ -1,13 +1,1 @@
-package router
-
-import (
-	"go-Beitler-api/handler"
-
-	"github.com/gorilla/mux"
-)
-
-func InitRouter(h *handler.MdsHandler) *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/api/mds/{id}", h.Delete).Methods("DELETE")
-	return r
-}
+["package router", "", "import (", "\t\"go-Beitler-api/handler\"", "", "\t\"github.com/gorilla/mux\"", ")", "", "func InitRouter(h *handler.MdsHandler) *mux.Router {", "\tr := mux.NewRouter()", "\tr.HandleFunc(\"/api/mds/{id}\", h.Delete).Methods(\"DELETE\")", "\tr.HandleFunc(\"/api/mds\", h.Create).Methods(\"POST\")", "\tr.HandleFunc(\"/api/mds\", h.GetAll).Methods(\"GET\")", "\treturn r", "}"]

@@ -1,10 +1,13 @@
+```go
 package handler
 
 import (
 	"encoding/json"
+	"go-Beitler-api/repository"
 	"go-Beitler-api/service"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -26,3 +29,90 @@ func (h *MdsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(map[string]string{"message": "Deleted successfully"})
 }
+
+type CreateMdsRequest struct {
+	Name          string `json:"name"`
+	Comments      string `json:"comments"`
+	EffectiveFrom string `json:"effectiveFrom"`
+	EffectiveTo   string `json:"effectiveTo"`
+	IsPPAgreed    bool   `json:"isPPAgreed"`
+}
+
+type MdsResponse struct {
+	ID            int       `json:"id"`
+	Name          string    `json:"name"`
+	Comments      string    `json:"comments"`
+	EffectiveFrom time.Time `json:"effectiveFrom"`
+	EffectiveTo   time.Time `json:"effectiveTo"`
+	IsPPAgreed    bool      `json:"isPPAgreed"`
+}
+
+func (h *MdsHandler) Create(w http.ResponseWriter, r *http.Request) {
+	var req CreateMdsRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request data", http.StatusBadRequest)
+		return
+	}
+
+	// Parse dates
+	effectiveFrom, err := time.Parse("2006-01-02", req.EffectiveFrom)
+	if err != nil {
+		http.Error(w, "Invalid effective from date format", http.StatusBadRequest)
+		return
+	}
+
+	effectiveTo, err := time.Parse("2006-01-02", req.EffectiveTo)
+	if err != nil {
+		http.Error(w, "Invalid effective to date format", http.StatusBadRequest)
+		return
+	}
+
+	// Create entry object
+	entry := repository.MdsEntry{
+		Name:          req.Name,
+		Comments:      req.Comments,
+		EffectiveFrom: effectiveFrom,
+		EffectiveTo:   effectiveTo,
+		IsPPAgreed:    req.IsPPAgreed,
+	}
+
+	// Call service to create entry
+	id, err := h.service.Create(entry)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Return success response
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "MDS entry has been saved successfully.",
+		"id":      id,
+	})
+}
+
+func (h *MdsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+	entries, err := h.service.GetAll()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Convert to response objects
+	response := make([]MdsResponse, len(entries))
+	for i, entry := range entries {
+		response[i] = MdsResponse{
+			ID:            entry.ID,
+			Name:          entry.Name,
+			Comments:      entry.Comments,
+			EffectiveFrom: entry.EffectiveFrom,
+			EffectiveTo:   entry.EffectiveTo,
+			IsPPAgreed:    entry.IsPPAgreed,
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+```
