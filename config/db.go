@@ -1,3 +1,4 @@
+```
 package config
 
 import (
@@ -31,5 +32,28 @@ func ConnectDB() {
 		log.Fatal("❌ DB not reachable: ", err)
 	}
 
+	// Initialize required tables
+	initTables()
+
 	log.Println("✅ Connected to MySQL Database")
 }
+
+func initTables() {
+	// Create mdsListing table if it doesn't exist
+	query := `CREATE TABLE IF NOT EXISTS mdsListing (
+		id INT AUTO_INCREMENT PRIMARY KEY,
+		name VARCHAR(255) NOT NULL,
+		comments TEXT,
+		effective_from DATE NOT NULL,
+		effective_to DATE NOT NULL,
+		is_pp_agreed BOOLEAN DEFAULT FALSE,
+		document_path VARCHAR(500),
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	)`
+
+	_, err := DB.Exec(query)
+	if err != nil {
+		log.Printf("❌ Error creating table: %v", err)
+	}
+}
+```

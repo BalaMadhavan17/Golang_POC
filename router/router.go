@@ -1,3 +1,4 @@
+```go
 package router
 
 import (
@@ -9,5 +10,8 @@ import (
 func InitRouter(h *handler.MdsHandler) *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/mds/{id}", h.Delete).Methods("DELETE")
+	r.HandleFunc("/api/mds", h.Create).Methods("POST")
+	r.HandleFunc("/api/mds", h.GetAll).Methods("GET")
 	return r
 }
+```
