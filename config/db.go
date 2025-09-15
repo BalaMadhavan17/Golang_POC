@@ -2,34 +2,34 @@ package config
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
-	// "os"
-
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-var DB *sql.DB
-
-func ConnectDB() {
-	// Read from environment variables (export before running)
-	dbUser := "balasubramanian_m"                                           //os.Getenv("DB_USER")
-	dbPass := "4Vv03HRg818f"                                                //os.Getenv("DB_PASS")
-	dbHost := "pocportal-dev.cvmt59aicyza.us-east-1.rds.amazonaws.com:3306" //os.Getenv("DB_HOST")
-	dbName := "Beitler"                                                     //os.Getenv("DB_NAME")
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPass, dbHost, dbName)
-
-	var err error
-	DB, err = sql.Open("mysql", dsn)
+func InitDB() *sql.DB {
+	db, err := sql.Open("sqlite3", "./mds.db")
 	if err != nil {
-		log.Fatal("❌ Error opening DB: ", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	if err = DB.Ping(); err != nil {
-		log.Fatal("❌ DB not reachable: ", err)
+	// Create tables if they don't exist
+	createTablesQuery := `
+	CREATE TABLE IF NOT EXISTS mds_entries (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		comments TEXT,
+		effective_from DATETIME NOT NULL,
+		effective_to DATETIME NOT NULL,
+		is_pp_agreed BOOLEAN DEFAULT 0,
+		document_path TEXT,
+		created_at DATETIME
+	);
+	`
+	_, err = db.Exec(createTablesQuery)
+	if err != nil {
+		log.Fatalf("Failed to create tables: %v", err)
 	}
 
-	log.Println("✅ Connected to MySQL Database")
+	return db
 }

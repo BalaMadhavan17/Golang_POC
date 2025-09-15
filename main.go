@@ -1,32 +1,32 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"net/http"
+
 	"go-Beitler-api/config"
 	"go-Beitler-api/handler"
 	"go-Beitler-api/repository"
 	"go-Beitler-api/router"
 	"go-Beitler-api/service"
-	"log"
-	"net/http"
-	"os"
 )
 
 func main() {
-	// Connect DB
-	config.ConnectDB()
+	// Initialize database connection
+	db := config.InitDB()
+	defer db.Close()
 
-	// Dependency Injection
-	repo := repository.NewMdsRepository(config.DB)
-	svc := service.NewMdsService(repo)
-	h := handler.NewMdsHandler(svc)
+	// Initialize repository, service, and handler
+	mdsRepo := repository.NewMdsRepository(db)
+	mdsService := service.NewMdsService(mdsRepo)
+	mdsHandler := handler.NewMdsHandler(mdsService)
 
-	// Init Router
-	r := router.InitRouter(h)
+	// Setup router
+	r := router.SetupRouter(mdsHandler)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	log.Println("🚀 Server running on port", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	// Start server
+	port := ":8080"
+	fmt.Printf("Server starting on port %s\n", port)
+	log.Fatal(http.ListenAndServe(port, r))
 }
