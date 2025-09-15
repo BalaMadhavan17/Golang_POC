@@ -2,21 +2,23 @@ package main
 
 import (
 	"go-Beitler-api/config"
+	"go-Beitler-api/router"
 	"log"
-	"os"
+	"net/http"
 )
 
 func main() {
-	// Connect DB
-	config.ConnectDB()
-
-	// Dependency Injection
-
-	// Init Router
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	// Initialize database
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
-	log.Println("🚀 Server running on port", port)
+	defer db.Close()
+
+	// Setup router
+	r := router.SetupRouter(db)
+
+	// Start server
+	log.Println("Server starting on :8080")
+	log.Fatal(http.ListenAndServe(":8080", r))
 }

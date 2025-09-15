@@ -24,7 +24,7 @@ func NewMdsRepository(db *sql.DB) MdsRepository {
 func (r *mdsRepository) Create(mds *model.MdsEntry) (int, error) {
 	mds.CreatedAt = time.Now()
 
-	query := `INSERT INTO mds_entries (name, comments, effective_from, effective_to, is_pp_agreed, document_path, created_at) 
+	query := `INSERT INTO mds_entries (name, comments, effective_from, effective_to, is_pp_agreed, document_path, created_at)
 			VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 	result, err := r.db.Exec(query, mds.Name, mds.Comments, mds.EffectiveFrom, mds.EffectiveTo,
@@ -43,7 +43,7 @@ func (r *mdsRepository) Create(mds *model.MdsEntry) (int, error) {
 }
 
 func (r *mdsRepository) GetAll() ([]model.MdsEntry, error) {
-	query := `SELECT id, name, comments, effective_from, effective_to, is_pp_agreed, document_path, created_at 
+	query := `SELECT id, name, comments, effective_from, effective_to, is_pp_agreed, document_path, created_at
 			FROM mds_entries ORDER BY created_at DESC`
 
 	rows, err := r.db.Query(query)
