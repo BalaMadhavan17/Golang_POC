@@ -1,22 +1,16 @@
 package main
 
 import (
-	"go-Beitler-api/config"
+	"go-Beitler-api/router"
 	"log"
-	"os"
+	"net/http"
 )
 
 func main() {
-	// Connect DB
-	config.ConnectDB()
-
-	// Dependency Injection
-
-	// Init Router
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	handler := router.SetupRoutes()
+	
+	log.Println("Server starting on port 8080...")
+	if err := http.ListenAndServe(":8080", handler); err != nil {
+		log.Fatalf("Could not start server: %s", err.Error())
 	}
-	log.Println("🚀 Server running on port", port)
 }
