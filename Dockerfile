@@ -1,35 +1,30 @@
-# Use the official Go image as the base image for building
+# Stage 1: Build the Go binary
 FROM golang:1.23-alpine AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy go.mod and go.sum files to download dependencies
+# Copy go.mod and go.sum first to leverage Docker layer caching
 COPY go.mod go.sum ./
-
-# Download dependencies
 RUN go mod download
 
-# Copy the rest of the application source code
+# Copy source code
 COPY . .
 
-# Build the Go application
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app-binary ./main.go
+# Build binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o app-binary ./main.go
 
-# Use a minimal alpine image for the final stage
-FROM alpine:latest
+# Stage 2: Run minimal image
+FROM alpine:3.18
 
-# Install ca-certificates for secure connections and mysql-client for database connectivity
-RUN apk --no-cache add ca-certificates mysql-client
+# Install required tools
+RUN apk --no-cache add ca-certificates mysql-client && update-ca-certificates
 
-# Set the working directory
 WORKDIR /root/
 
-# Copy the compiled binary from the builder stage
-COPY --from=builder /app-binary .
+# Copy binary
+COPY --from=builder /app/app-binary .
 
-# Expose the port the app runs on
+# Expose app port
 EXPOSE 8080
 
-# Command to run the application
 CMD ["./app-binary"]
