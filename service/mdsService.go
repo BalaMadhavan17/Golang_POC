@@ -1,1 +1,43 @@
-["package mdsService", "", "import (", "\t\"go-Beitler-api/model\"", "\t\"go-Beitler-api/repository\"", ")", "", "type MdsService interface {", "\tCreate(mds *model.MdsEntry) (int, error)", "\tGetAll() ([]model.MdsEntry, error)", "\tDelete(id int) error", "}", "", "type mdsService struct {", "\trepo repository.MdsRepository", "}", "", "func NewMdsService(repo repository.MdsRepository) MdsService {", "\treturn &mdsService{repo}", "}", "", "func (s *mdsService) Create(mds *model.MdsEntry) (int, error) {", "\treturn s.repo.Create(mds)", "}", "", "func (s *mdsService) GetAll() ([]model.MdsEntry, error) {", "\treturn s.repo.GetAll()", "}", "", "func (s *mdsService) Delete(id int) error {", "\treturn s.repo.Delete(id)", "}"]
+package service
+
+import (
+	"go-Beitler-api/model"
+	"go-Beitler-api/repository"
+	"time"
+)
+
+type MdsService interface {
+	Create(mds *model.MdsEntry) (int, error)
+	GetAll() ([]model.MdsEntry, error)
+	Delete(id int) error
+}
+
+type mdsService struct {
+	repo repository.MdsRepository
+}
+
+type MdsInput struct {
+	Name          string    `json:"name"`
+	Comments      string    `json:"comments"`
+	EffectiveFrom time.Time `json:"effectiveFrom"`
+	EffectiveTo   time.Time `json:"effectiveTo"`
+	IsPPAgreed    bool      `json:"isPPAgreed"`
+	DocumentPath  string    `json:"documentPath"`
+	CreatedAt     time.Time `json:"createdAt"`
+	ReferenceNo   string    `json:"referenceNo"`
+	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
+}
+
+func NewMdsService(repo repository.MdsRepository) MdsService {
+	return &mdsService{repo}
+}
+
+func (s *mdsService) Create(mds *model.MdsEntry) (int, error) {
+	return s.repo.Create(mds)
+}
+func (s *mdsService) GetAll() ([]model.MdsEntry, error) {
+	return s.repo.GetAll()
+}
+func (s *mdsService) Delete(id int) error {
+	return s.repo.Delete(id)
+}

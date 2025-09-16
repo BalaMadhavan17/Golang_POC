@@ -1,9 +1,14 @@
 module go-Beitler-api
 
-go 1.19
+go 1.24.0
 
 require (
-	github.com/go-sql-driver/mysql v1.7.0
-	github.com/gorilla/mux v1.8.0
-	github.com/rs/cors v1.9.0
+	github.com/go-sql-driver/mysql v1.9.3
+	github.com/gorilla/mux v1.8.1
+	github.com/rs/cors v1.11.1
+)
+
+require (
+	filippo.io/edwards25519 v1.1.0 // indirect
+	golang.org/x/text v0.29.0
 )
