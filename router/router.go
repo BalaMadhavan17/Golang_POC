@@ -12,6 +12,11 @@ import (
 	"github.com/rs/cors"
 )
 
+func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
+}
+
 func SetupRoutes() http.Handler {
 	r := mux.NewRouter()
 
@@ -29,7 +34,8 @@ func SetupRoutes() http.Handler {
 
 	// API routes
 	api := r.PathPrefix("/api").Subrouter()
-
+	// Health check route
+	api.HandleFunc("/health", healthCheckHandler).Methods("GET")
 	// MDS routes
 	api.HandleFunc("/mds", mdsHandler.Create).Methods("POST")
 	api.HandleFunc("/mds", mdsHandler.GetAll).Methods("GET")
