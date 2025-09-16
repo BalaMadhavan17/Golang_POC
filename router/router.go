@@ -32,10 +32,12 @@ func SetupRoutes() http.Handler {
 	// Initialize handler
 	mdsHandler := mdsHandlerPkg.NewMdsHandler(mdsService)
 
+	// Health check route
+	r.HandleFunc("/go/health", healthCheckHandler).Methods("GET")
+
 	// API routes
 	api := r.PathPrefix("/api").Subrouter()
-	// Health check route
-	api.HandleFunc("/health", healthCheckHandler).Methods("GET")
+
 	// MDS routes
 	api.HandleFunc("/mds", mdsHandler.Create).Methods("POST")
 	api.HandleFunc("/mds", mdsHandler.GetAll).Methods("GET")
