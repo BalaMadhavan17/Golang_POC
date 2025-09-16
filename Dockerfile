@@ -26,3 +26,4 @@ EXPOSE 8080
 
 # Run the compiled binary instead of go run
 CMD ["./main"]
+
