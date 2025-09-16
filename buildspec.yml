@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Logging into Amazon ECR"
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 940425520410.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+      - echo "Building Docker image for Go application"
+      - docker build -t go-beitler-api:latest .
+      - echo "Tagging Docker image"
+      - docker tag go-beitler-api:latest 940425520410.dkr.ecr.us-east-1.amazonaws.com/go-beitler-api:latest
+  post_build:
+    commands:
+      - echo "Pushing Docker image to ECR"
+      - docker push 940425520410.dkr.ecr.us-east-1.amazonaws.com/go-beitler-api:latest
+      - echo "Cleaning up unused Docker images"
+      - docker image prune -f
+      - echo "Creating imagedefinitions.json"
+      - printf '[{"name":"go-beitler-api","imageUri":"940425520410.dkr.ecr.us-east-1.amazonaws.com/go-beitler-api:latest"}]' > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
