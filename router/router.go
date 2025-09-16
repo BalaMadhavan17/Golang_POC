@@ -36,7 +36,7 @@ func SetupRoutes() http.Handler {
 	r.HandleFunc("/go/health", healthCheckHandler).Methods("GET")
 
 	// API routes
-	api := r.PathPrefix("/api").Subrouter()
+	api := r.PathPrefix("/go/api").Subrouter()
 
 	// MDS routes
 	api.HandleFunc("/mds", mdsHandler.Create).Methods("POST")
