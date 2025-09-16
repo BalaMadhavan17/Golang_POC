@@ -7,6 +7,11 @@ WORKDIR /app
 # Copy go.mod and go.sum files
 COPY go.mod go.sum ./
 
+# Explicitly add dependencies to ensure go.sum is populated
+RUN go get github.com/go-sql-driver/mysql@v1.8.1 && \
+    go get github.com/gorilla/mux@v1.8.1 && \
+    go get github.com/rs/cors@v1.11.1
+
 # Ensure dependencies are resolved
 RUN go mod tidy
 
