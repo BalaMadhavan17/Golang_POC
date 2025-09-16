@@ -1,37 +1,43 @@
-# Stage 1: Build
+# Use the official Go image as the base image for building
 FROM golang:1.23-alpine AS builder
 
-# Install dependencies for build
-RUN apk add --no-cache git
-
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy go.mod and go.sum first
+# Copy go.mod and go.sum files
 COPY go.mod go.sum ./
 
-# Download Go modules
-RUN go mod tidy
-RUN go get github.com/gorilla/mux \
-    github.com/rs/cors \
-    github.com/go-sql-driver/mysql
+# Explicitly add dependencies to ensure go.sum is populated
+RUN go get github.com/go-sql-driver/mysql@v1.8.1 && \
+    go get github.com/gorilla/mux@v1.8.1 && \
+    go get github.com/rs/cors@v1.11.1
+
+# Ensure dependencies are resolved
 RUN go mod tidy
 
-# Copy the rest of the application
+# Download dependencies
+RUN go mod download
+
+# Copy the rest of the application source code
 COPY . .
 
-# Build the Go binary
+# Build the Go application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app-binary ./main.go
 
-# Stage 2: Minimal runtime image
+# Use a minimal alpine image for the final stage
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates mysql-client
+# Install ca-certificates and mysql-client
+RUN apk --no-cache add ca-certificates mysql-client && update-ca-certificates
 
+# Set the working directory
 WORKDIR /root/
 
-# Copy binary from builder
+# Copy the compiled binary from the builder stage
 COPY --from=builder /app-binary .
 
-# Expose port and run
+# Expose the port the app runs on
 EXPOSE 8080
+
+# Command to run the application
 CMD ["./app-binary"]
