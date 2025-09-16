@@ -13,8 +13,16 @@ RUN go mod tidy
 # Copy the rest of the application code
 COPY . .
 
+# Ensure required dependencies are fetched
+RUN go get github.com/gorilla/mux \
+    && go get github.com/rs/cors \
+    && go get github.com/go-sql-driver/mysql
+
+# Optional: Build a binary to avoid go run issues
+RUN go build -o main .
+
 # Expose the port your app runs on
 EXPOSE 8080
 
-# Command to run the application (like npm start)
-CMD ["go", "run", "main.go"]
+# Run the compiled binary instead of go run
+CMD ["./main"]
