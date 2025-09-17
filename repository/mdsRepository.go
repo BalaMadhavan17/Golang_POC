@@ -12,7 +12,8 @@ type MdsRepository interface {
 	// GetAll returns a paginated, sorted list of entries.
 	// page is 1-based. pageSize controls number of items per page.
 	// sortBy is the column name to sort on and sortOrder is "ASC" or "DESC".
-	GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, error)
+	// returns (entries, totalItems, error)
+	GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, int, error)
 }
 
 type mdsRepository struct {
@@ -41,7 +42,7 @@ func (r *mdsRepository) Create(entry *model.MdsEntry) (int, error) {
 	return int(id), err
 }
 
-func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, error) {
+func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, int, error) {
 	// Validate and map sortBy to actual column names to avoid SQL injection
 	allowedSortColumns := map[string]string{
 		"id":            "id",
@@ -72,22 +73,27 @@ func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]
 
 	offset := (page - 1) * pageSize
 
+	// Get total count first
+	var total int
+	if err := r.db.QueryRow("SELECT COUNT(*) FROM mdsListing").Scan(&total); err != nil {
+		return nil, 0, err
+	}
+
 	query := "SELECT id, mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, referenceNo, filePath, createdAt, updatedAt FROM mdsListing ORDER BY " + col + " " + order + " LIMIT ? OFFSET ?"
 	rows, err := r.db.Query(query, pageSize, offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
 	var entries []model.MdsEntry
 	for rows.Next() {
 		var entry model.MdsEntry
-		err := rows.Scan(&entry.ID, &entry.Name, &entry.Comments, &entry.EffectiveFrom, &entry.EffectiveTo, &entry.IsPPAgreed, &entry.ReferenceNo, &entry.DocumentPath, &entry.CreatedAt, &entry.UpdatedAt)
-		if err != nil {
-			return nil, err
+		if err := rows.Scan(&entry.ID, &entry.Name, &entry.Comments, &entry.EffectiveFrom, &entry.EffectiveTo, &entry.IsPPAgreed, &entry.ReferenceNo, &entry.DocumentPath, &entry.CreatedAt, &entry.UpdatedAt); err != nil {
+			return nil, 0, err
 		}
 		entries = append(entries, entry)
 	}
 
-	return entries, nil
+	return entries, total, nil
 }

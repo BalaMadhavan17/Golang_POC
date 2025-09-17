@@ -81,15 +81,30 @@ func (h *MdsHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	data, err := h.service.GetAll(page, pageSize, sortBy, sortOrder)
+	data, total, err := h.service.GetAll(page, pageSize, sortBy, sortOrder)
 	if err != nil {
 		http.Error(w, "Failed to fetch data", http.StatusInternalServerError)
 		return
 	}
 
+	totalPages := 0
+	if pageSize > 0 {
+		totalPages = (total + pageSize - 1) / pageSize
+	}
+
+	envelope := map[string]interface{}{
+		"data": data,
+		"meta": map[string]interface{}{
+			"totalItems": total,
+			"totalPages": totalPages,
+			"page":       page,
+			"pageSize":   pageSize,
+		},
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(data); err != nil {
+	if err := json.NewEncoder(w).Encode(envelope); err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 	}
 }

@@ -9,7 +9,8 @@ import (
 type MdsService interface {
 	Create(mds *model.MdsEntry) (int, error)
 	// GetAll returns paginated and sorted entries. page is 1-based.
-	GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, error)
+	// returns (entries, totalItems, error)
+	GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, int, error)
 	Delete(id int) error
 }
 
@@ -36,7 +37,7 @@ func NewMdsService(repo repository.MdsRepository) MdsService {
 func (s *mdsService) Create(mds *model.MdsEntry) (int, error) {
 	return s.repo.Create(mds)
 }
-func (s *mdsService) GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, error) {
+func (s *mdsService) GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, int, error) {
 	return s.repo.GetAll(page, pageSize, sortBy, sortOrder)
 }
 func (s *mdsService) Delete(id int) error {
