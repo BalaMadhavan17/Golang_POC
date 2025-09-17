@@ -9,7 +9,10 @@ import (
 type MdsRepository interface {
 	Delete(id int) error
 	Create(entry *model.MdsEntry) (int, error)
-	GetAll() ([]model.MdsEntry, error)
+	// GetAll returns a paginated, sorted list of entries.
+	// page is 1-based. pageSize controls number of items per page.
+	// sortBy is the column name to sort on and sortOrder is "ASC" or "DESC".
+	GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, error)
 }
 
 type mdsRepository struct {
@@ -38,8 +41,39 @@ func (r *mdsRepository) Create(entry *model.MdsEntry) (int, error) {
 	return int(id), err
 }
 
-func (r *mdsRepository) GetAll() ([]model.MdsEntry, error) {
-	rows, err := r.db.Query("SELECT id, mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, referenceNo, filePath, createdAt, updatedAt FROM mdsListing")
+func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]model.MdsEntry, error) {
+	// Validate and map sortBy to actual column names to avoid SQL injection
+	allowedSortColumns := map[string]string{
+		"id":            "id",
+		"name":          "mdsName",
+		"effectiveFrom": "effectiveFrom",
+		"effectiveTo":   "effectiveTo",
+		"createdAt":     "createdAt",
+		"updatedAt":     "updatedAt",
+		"referenceNo":   "referenceNo",
+	}
+
+	col, ok := allowedSortColumns[sortBy]
+	if !ok {
+		col = "id"
+	}
+
+	order := "ASC"
+	if sortOrder == "DESC" || sortOrder == "desc" {
+		order = "DESC"
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	if pageSize <= 0 || pageSize > 100 {
+		pageSize = 10
+	}
+
+	offset := (page - 1) * pageSize
+
+	query := "SELECT id, mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, referenceNo, filePath, createdAt, updatedAt FROM mdsListing ORDER BY " + col + " " + order + " LIMIT ? OFFSET ?"
+	rows, err := r.db.Query(query, pageSize, offset)
 	if err != nil {
 		return nil, err
 	}
