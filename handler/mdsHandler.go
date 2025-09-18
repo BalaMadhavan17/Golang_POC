@@ -33,7 +33,6 @@ func (h *MdsHandler) Create(w http.ResponseWriter, r *http.Request) {
 		EffectiveFrom: input.EffectiveFrom,
 		EffectiveTo:   input.EffectiveTo,
 		IsPPAgreed:    input.IsPPAgreed,
-		ReferenceNo:   input.ReferenceNo,
 		DocumentPath:  input.DocumentPath,
 	}
 

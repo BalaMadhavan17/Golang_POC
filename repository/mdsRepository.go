@@ -31,8 +31,8 @@ func (r *mdsRepository) Delete(id int) error {
 
 func (r *mdsRepository) Create(entry *model.MdsEntry) (int, error) {
 	entry.CreatedAt = time.Now()
-	result, err := r.db.Exec("INSERT INTO mdsListing (mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, filePath, referenceNo, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-		entry.Name, entry.Comments, entry.EffectiveFrom, entry.EffectiveTo, entry.IsPPAgreed, entry.DocumentPath, entry.ReferenceNo, entry.CreatedAt)
+	result, err := r.db.Exec("INSERT INTO mdsListing (mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, filePath, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		entry.Name, entry.Comments, entry.EffectiveFrom, entry.EffectiveTo, entry.IsPPAgreed, entry.DocumentPath, entry.CreatedAt)
 
 	if err != nil {
 		return 0, err
@@ -51,7 +51,6 @@ func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]
 		"effectiveTo":   "effectiveTo",
 		"createdAt":     "createdAt",
 		"updatedAt":     "updatedAt",
-		"referenceNo":   "referenceNo",
 	}
 
 	col, ok := allowedSortColumns[sortBy]
@@ -79,7 +78,7 @@ func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]
 		return nil, 0, err
 	}
 
-	query := "SELECT id, mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, referenceNo, filePath, createdAt, updatedAt FROM mdsListing ORDER BY " + col + " " + order + " LIMIT ? OFFSET ?"
+	query := "SELECT id, mdsName, comments, effectiveFrom, effectiveTo, isPpAgreed, filePath, createdAt, updatedAt FROM mdsListing ORDER BY " + col + " " + order + " LIMIT ? OFFSET ?"
 	rows, err := r.db.Query(query, pageSize, offset)
 	if err != nil {
 		return nil, 0, err
@@ -89,7 +88,7 @@ func (r *mdsRepository) GetAll(page, pageSize int, sortBy, sortOrder string) ([]
 	var entries []model.MdsEntry
 	for rows.Next() {
 		var entry model.MdsEntry
-		if err := rows.Scan(&entry.ID, &entry.Name, &entry.Comments, &entry.EffectiveFrom, &entry.EffectiveTo, &entry.IsPPAgreed, &entry.ReferenceNo, &entry.DocumentPath, &entry.CreatedAt, &entry.UpdatedAt); err != nil {
+		if err := rows.Scan(&entry.ID, &entry.Name, &entry.Comments, &entry.EffectiveFrom, &entry.EffectiveTo, &entry.IsPPAgreed, &entry.DocumentPath, &entry.CreatedAt, &entry.UpdatedAt); err != nil {
 			return nil, 0, err
 		}
 		entries = append(entries, entry)

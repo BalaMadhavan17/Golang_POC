@@ -26,7 +26,6 @@ type MdsInput struct {
 	IsPPAgreed    bool      `json:"isPPAgreed"`
 	DocumentPath  string    `json:"documentPath"`
 	CreatedAt     time.Time `json:"createdAt"`
-	ReferenceNo   string    `json:"referenceNo"`
 	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
 }
 
