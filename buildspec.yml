@@ -19,7 +19,7 @@ phases:
       - docker image prune -f
       - echo "Creating imagedefinitions.json"
       - printf '[{"name":"go-beitler-api","imageUri":"940425520410.dkr.ecr.us-east-1.amazonaws.com/go-beitler-api:latest"}]' > imagedefinitions.json
-
+              
 artifacts:
   files:
     - imagedefinitions.json
