@@ -21,7 +21,6 @@ RUN go get github.com/gorilla/mux \
 # Optional: Build a binary to avoid go run issues
 RUN go build -o main .
 
-# Expose the port your app runs on
 EXPOSE 8080
 
 # Run the compiled binary instead of go run
