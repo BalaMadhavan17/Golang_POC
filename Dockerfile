@@ -1,7 +1,6 @@
 # Use the same Go version as your developer's laptop
 FROM golang:1.25.1-alpine
 
-# Set working directory inside the container
 WORKDIR /app
 
 # Copy go.mod and go.sum first for dependency caching
