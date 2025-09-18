@@ -3,7 +3,6 @@ FROM golang:1.25.1-alpine
 
 WORKDIR /app
 
-# Copy go.mod and go.sum first for dependency caching
 COPY go.mod go.sum ./
 
 # Download Go modules
