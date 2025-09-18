@@ -1,4 +1,3 @@
-# Use the same Go version as your developer's laptop
 FROM golang:1.25.1-alpine
 
 WORKDIR /app
